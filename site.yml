@@ -35,4 +35,20 @@
           - libapache2-mod-php 
         state: latest
       when: ansible_distribution == "Ubuntu"
-  
+
+- hosts: workstations
+  become: true
+  tasks:
+    - name: uninstall zip
+      package: 
+        name: unzip
+
+    - name: install terraform
+      unarchive:
+        src: https://releases.hashicorp.com/terraform/1.11.4/terraform_1.11.4_linux_arm64.zip
+        dest: /usr/local/bin
+        remote_src: yes
+        mode: 0755
+        owner: root
+        group: root
+

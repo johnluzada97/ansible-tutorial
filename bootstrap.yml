@@ -1,0 +1,49 @@
+---
+
+- hosts: all
+  become: true
+  tasks:
+    - name: install updates (Debian)
+      apt:
+        upgrade: dist
+        update_cache: yes
+      when: ansible_distribution == "Debian"
+
+    - name: install updates (Ubuntu)
+      tags: apache,apache2
+      apt:
+        upgrade: dist
+        update_cache: yes
+      when: ansible_distribution == "Ubuntu"
+
+    - name: copy default html file for site
+      tags: apache,apache2,httpd
+      copy: 
+        src: default_site.html
+        dest: /var/www/html/index.html
+        owner: root
+        group: root
+        mode: 0644  
+
+- hosts: all
+  become: true
+  tasks:
+  - name: create simone user
+    tags: always
+    user:
+      name: simone
+      groups: root
+  - name: add ssh key for simone
+    tags: always
+    authorized_key:
+      user: simone
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMqlkBj4HiyARH15q5Fe+k7Sf6fSnsA7Jy+4guIHmNwx johnluzada97@firstjob"
+  - name: add sudoers file for simone
+    tags: akways
+    copy:
+      src: sudoer_simone
+      dest: /etc/sudoers.d/simone
+      owner: root
+      group: root
+      mode: 0440
+

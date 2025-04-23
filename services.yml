@@ -1,0 +1,12 @@
+---
+
+- hosts: ubuntuserver
+  become: true
+  tasks:
+    - name: run cmatrix service upon startup
+      service:
+        name: apache2
+        state: started
+      when: ansible_distribution == "Ubuntu" 
+
+
