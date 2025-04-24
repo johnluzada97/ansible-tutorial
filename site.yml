@@ -1,54 +1,44 @@
 ---
-
-- hosts: all
-  become: true
-  tasks:
-    - name: install updates (Debian)
-      apt:
-        upgrade: dist
-        update_cache: yes
-      when: ansible_distribution == "Debian"
-
-    - name: install updates (Ubuntu)
-      tags: apache,apache2
-      apt:
-        upgrade: dist
-        update_cache: yes
-      when: ansible_distribution == "Ubuntu"
-
-    - name: copy default html file for site
-      tags: apache,apache2,httpd
-      copy: 
-        src: default_site.html
-        dest: /var/www/html/index.html
-        owner: root
-        group: root
-        mode: 0644  
-
-- hosts: ubuntuserver
-  become: true
-  tasks:
-    - name: update repository index, install apache2 and php packages for Ubuntu
-      package:
-        name: 
-          - apache2
-          - libapache2-mod-php 
-        state: latest
-      when: ansible_distribution == "Ubuntu"
-
-- hosts: workstations
-  become: true
-  tasks:
-    - name: uninstall zip
-      package: 
-        name: unzip
-
-    - name: install terraform
-      unarchive:
-        src: https://releases.hashicorp.com/terraform/1.11.4/terraform_1.11.4_linux_arm64.zip
-        dest: /usr/local/bin
-        remote_src: yes
-        mode: 0755
-        owner: root
-        group: root
-
+ 
+ - hosts: all
+   become: true
+   pre_tasks:
+ 
+   - name: update repository index (Debian)
+     tags: always
+     apt:
+       update_cache: yes
+     changed_when: false
+     when: ansible_distribution == "Debian"
+ 
+   - name: update repository index (Ubuntu)
+     tags: always
+     apt:
+       update_cache: yes
+     changed_when: false
+     when: ansible_distribution == "Ubuntu"
+ 
+ - hosts: all
+   become: true
+   roles:
+     - base
+    
+ - hosts: workstations
+   become: true
+   roles:
+     - workstations
+ 
+ - hosts: web_servers
+   become: true
+   roles:
+     - web_servers
+ 
+ - hosts: db_servers
+   become: true
+   roles:
+     - db_servers
+ 
+ - hosts: file_servers
+   become: true
+   roles:
+     - file_servers
